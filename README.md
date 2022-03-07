@@ -12,20 +12,48 @@ There can be two possibilities:
 
 In this short story, there is a promise of getting the water using the activity of fetching it. The promise can get fulfilled(getting the water) by the kids or reject due to the disaster. Also, grandparents were not sitting idle and were planning their day.
 
-The JS promises also work in a similar way. We create them to fetch asynchronously(configuration, data store) which means we do not want to wait for the response but we can continue to work on the response when its available.
+The JS promises also work in a similar way. We create them to fetch asynchronously(configuration, data store) which means we do not want to wait for the response but we can continue to work on the response when its available. <br>
 
 <table>
-
+<thead>
   <tr>
-    <th>In Real Life(with JavaScript)</th>
+    <th>In Real Life with JS</th>
     <th>In Our Story</th>
   </tr>
-Promise	Water fetching by Jack 👦 and Jill 👧
-Executor Function	Fetch the Water 🏃‍♀️ 🏃‍♂️
-Activity	Fetch 🧶
-Expected data in response	Water 💧
-Consumers	Grandparents 👵 👴
-resolve/fulfilled	✔️ Successfully get the water for cooking
-reject/rejected	❌ Disaster(error) in getting the water
-Task after getting the data successfully	Cooking 🍚
+</thead>
+<tbody>
+  <tr>
+    <td>Promise </td>
+    <td>Water fetching by Jack and Jill</td>
+  </tr>
+  <tr>
+    <td>Executor Function </td>
+    <td>Fetch the Water </td>
+  </tr>
+  <tr>
+    <td>Activity</td>
+    <td>Fetch</td>
+  </tr>
+  <tr>
+    <td>Expected data in response </td>
+    <td>Water</td>
+  </tr>
+  <tr>
+    <td>Consumer </td>
+    <td>Grandparents </td>
+  </tr>
+  <tr>
+    <td>Resolve/fullfilled</td>
+    <td>Successfully get the water </td>
+  </tr>
+  <tr>
+    <td>Reject </td>
+    <td>Disaster / not get water</td>
+  </tr>
+  <tr>
+    <td>Task after getting the data </td>
+    <td>Cooking</td>
+  </tr>
+</tbody>
+</table>
 
