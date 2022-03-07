@@ -347,9 +347,187 @@ getUser
 });
 ```
 
+Output is:
+
+Got user John Doe
+Error: You are not allowed to access the HR module.
+
+### Rule 3:
+You can rethrow from the .catch() handler to handle the error later. In this case, the control will go to the next closest .catch() handler.
+
+In the example below, we reject a promise to lead the control to the .catch() handler. Then we check if the error is a specific value and if so, we rethrow it. When we rethrow it, the control doesn't go to the .then() handler. It goes to the closest .catch() handler.
+
+```
+
+// Craete a promise
+var promise = new Promise(function(resolve, reject) {
+    reject(401);
+});
+
+// catch the error
+promise
+.catch(function(error) {
+    if (error === 401) {
+        console.log('Rethrowing the 401');
+        throw error;
+    } else {
+        // handle it here
+    }
+})
+.then(function(value) {
+    // This one will not run
+    console.log(value);
+}).catch(function(error) {
+    // Rethrow will come here
+    console.log(`handling ${error} here`);
+});
+```
+
+Output is:
+
+Rethrowing the 401
+handling 401 here
+
+## Rule 4
+Unlike .then() and .catch(), the .finally() handler doesn't process the result value or error. It just passes the result as is to the next handler.
+
+```
+// Create a Promise
+let promise = new Promise(function(resolve, reject) {
+    resolve('Testing Finally.');
+});
+
+// Run .finally() before .then()
+promise.finally(function() {
+    console.log('Running .finally()');
+}).then(function(value) {
+    console.log(value);
+});
+```
+Output is:
+```
+Running .finally()
+Testing Finally.
+```
+
+## Rule 5
+Calling the .then() handler method multiple times on a single promise is NOT chaining.
+
+A Promise chain starts with a promise, a sequence of handlers methods to pass the value/error down in the chain. But calling the handler methods multiple times on the same promise doesn't create the chain.
+
+![image](https://user-images.githubusercontent.com/42742924/156983465-3c7cdc83-6c64-4a48-89f7-88037d0daa37.png)
+
+```
+// This is not Chaining Promises
+
+// Create a Promise
+let promise = new Promise(function (resolve, reject) {
+  resolve(10);
+});
+
+// Calling the .then() method multiple times
+// on a single promise - It's not a chain
+promise.then(function (value) {
+  value++;
+  return value;
+});
+promise.then(function (value) {
+  value = value + 10;
+  return value;
+});
+promise.then(function (value) {
+  value = value + 20;
+  console.log(value);
+  return value;
+});
+```
+
+The answer is 30. It is because we do not have a promise chain here. Each of the .then() methods gets called individually. They do not pass down any result to the other .then() methods. We have kept the console log inside the last .then() method alone. Hence the only log will be 30 (10 + 20). You interviewers love asking questions like this 😉!
+
+### In summary
+
+1. Every promise gives you a .then() handler method. Every rejected promise provides you a .catch() handler.
+2. You can do mainly three valuable things from the .then() method. You can return another promise(for async operation). You can return any other value from a synchronous operation. Lastly, you can throw an error.
+3. You can rethrow from the .catch() handler to handle the error later. In this case, the control will go to the next closest .catch() handler.
+4. Unlike .then() and .catch(), the .finally() handler doesn't process the result value or error. It just passes the result as is to the next handler.
+5. Calling the .then() handler method multiple times on a single promise is NOT chaining.
+
+## Story of the pizza boy:
+
+![image](https://user-images.githubusercontent.com/42742924/156984129-5618fde8-44e2-4a3a-89f7-9875482fcbd0.png)
+
+## Async & Await keywords:
+
+Async is used to return a promise.
+Await is used to wait and handle a promise.
+
+The async keyword is for a function that is supposed to perform an asynchronous operation. It means the function may be taking a while before it finishes execution, returns a result, or throw an error. It can either finish the execution, return result or throw an error.
+
+```
+// Example
+async function fetchUserDetails(userId) {
+    // pretend we make an asynchronous call
+   // and return the user details
+   return {'name': 'Robin', 'likes': ['toys', 'pizzas']};
+}
 
 
+const fetchUserDetails = async (userId) => {
+   // pretend we make an asynchronous call
+  // and return the user details
+  return {'name': 'Robin', 'likes': ['toys', 'pizzas']};
+}
 
+```
+
+When we invoke a async function it returns a promise. the major difference between async function and regular is ...async always returns the promise.
+if you do not return a promise explicitly from an async function, JavaScript automatically wraps the value in a Promise and returns it.
+
+The await keyword is for making the JavaScript function execution wait until a promise is settled(either resolved or rejected) and value/error is returned/thrown. As the fetchUserDetails async function returns a promise, let us handle it using the await keyword.
+
+```
+const user = await fetchUserDetails();
+console.log(user)
+
+
+// OR
+fetchUserDetails().then((user) => console.log(user));
+```
+
+### Rules about async & await
+
+1. You can not use the await keyword in a regular, non-async function. JavaScript engine will throw a syntax error if you try doing so.
+
+```
+function caller() {
+ // Using await in a non-async function.
+ const user = await fetchUserDetails();
+}
+
+// This will result in an syntax error
+caller();
+```
+
+2. The function you use after the await keyword may or may not be an async function. There is no mandatory rule that it has to be an async function. Let's understand it with the following examples,
+
+Create a non-async function that returns the synchronous message, say, Hi.
+```
+function getSynchronousHi() {
+  return 'Hi';
+}
+```
+
+You can still use the keyword await while invoking the above function.
+
+```
+async function caller() {
+  const messageHi = await getSynchronousHi();
+  console.log( messageHi);
+}
+
+caller(); // Output, 'Hi' in the console.
+```
+As you see, we can use the await with a non-async function but, we can not use it within(or inside) a non-async function.
 
 
 
