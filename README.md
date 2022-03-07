@@ -153,20 +153,199 @@ We have set up an information mechanism for the grandparents to know when the wa
 
 Activating the handler by calling the function.
 
+### .catch() Handler
+You can use this handler method to handle errors (rejections) from promises. As we discussed already, it is a much better syntax to handle the error situation than handling it using the .then() method.
+
+```
+// 1. Create the promise
+let promise = new Promise(function(resolve, reject) {
+  setTimeout(function() {
+      // Reject it as the disaster happend.
+      reject(new Error('Jack fell down and broke his crown. And Jill came tumbling after.'));
+  }, 2000);
+});
+
+// 2. Inform grandparents 
+// but this time we are using the .catch
+const grandParentsCooking = () => {
+  promise.catch(function(error) {
+    console.error(`OMG ${error.message}`);
+  });
+}
+
+// 3. Call the function
+grandParentsCooking();
+```
+The Output
+![image](https://user-images.githubusercontent.com/42742924/156977396-9dc8cfd6-ae61-4f1e-a578-45458ce738de.png)
+
+**Note:**
+1. We use the reject method in the above code to reject the promise.
+2. You can pass any type of argument to the reject method like the resolve method. However, it is recommended to use the Error objects. We will discuss it in detail in the future article on error handling with promise.
+3. We use the .catch() handler to handle the rejection. In the real world, you will have both .then() and .catch() methods to handle the resolve and reject scenarios. We will learn it in the promise chaining article of the series.
+
+### .finally Handler:
+The .finally() handler method performs cleanups like stopping a loader, closing a live connection, and so on. Irrespective of whether a promise resolves or rejects, the .finally() method will be called. 
+```
+let loading = true;
+loading && console.log('Loading...');
+
+// Getting the promise
+promise = getPromise();
+
+promise.finally(() => {
+    loading = false;
+    console.log(`Promise Settled and loading is ${loading}`);
+}).then((result) => {
+    console.log({result});
+});
+```
+The vital point to note, the .finally() method passes through the result or error to the next handler, which can call a .then() or .catch() again. It is convenient.
+
+### In summary:
+
+1. Promise is an important building block for the asynchronous concept in JavaScript.
+2. You can create a promise using the constructor function.
+3. The constructor accepts an executor function as an argument and returns a promise object.
+4. A promise object has two internal properties, state and result. These properties are not code-accessible.
+5. The consumer of a promise can use the .then(), .catch(), and .finally() methods to handle promises.
+6. The Promise is better understood using examples, like the Jack and Jill Story.
 
 
+## Promise Chain - The art of handling promises
+This three handler methods, .then(), .catch(), and .finally(). These methods help us in handling any number of asynchronous operations that are depending on each other. For example, the output of the first asynchronous operation is used as the input of the second one, and so on.
 
+We can chain these handlers to pass value/error from one promise to another.
+There are 5 rules to understand and follow to get a grip on the chain.
 
+### Rule 1
+Every promise gives you a .then() handler method. Every rejected promise provides you a .catch() handler.
+We call the .then() method to handle the resolved value.
+We can handle the rejected promse with the .catch() handler
 
+```
+// Create a Promise
+let promise = new Promise(function(resolve, reject) {
+    reject(new Error('Rejecting a fake Promise to handle with .catch().'));
+});
 
+// Handle it using the .then() handler
+promise.catch(function(value) {
+    console.error(value);
+});
+```
 
+Output:
+Error: Rejecting a fake Promise to handle with .catch().
 
+### Rule 2
 
+You can do mainly three valuable things from the .then() method, return another promise(for async operation), return any other value from a synchronous operation. Lastly, throw an error.
 
+1. Return a promise from the .then() handler
+You can return a promise from a .then() handler method. You will go for it when you have to initiate an async call based on a response from a previous async call. 
 
+```
+// Create a Promise
+let getUser = new Promise(function(resolve, reject) {
+    const user = { 
+           name: 'John Doe', 
+           email: 'jdoe@email.com', 
+           password: 'jdoe.password' 
+     };
+   resolve(user);
+});
 
+getUser
+.then(function(user) {
+    console.log(`Got user ${user.name}`);
+    // Return a Promise
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            // Fetch address of the user based on email
+            resolve('Bangalore');
+         }, 1000);
+    });
+})
+.then(function(address) {
+    console.log(`User address is ${address}`);
+});
+```
+We return the promise from the first .then() method.
 
+Output is: 
+```
+Got user John Doe
+User address is Bangalore
+```
 
+2. Return a simple value from the .then() handler
+
+In many situations, you may not have to make an async call to get a value. You may want to retrieve it synchronously from memory or cache. You can return a simple value from the .then() method than returning a promise in these situations.
+
+Take a look into the first .then() method in the example below. We return a synchronous email value to process it in the next .then() method.
+
+```
+// Create a Promise
+let getUser = new Promise(function(resolve, reject) {
+   const user = { 
+           name: 'John Doe', 
+           email: 'jdoe@email.com', 
+           password: 'jdoe.password' 
+    };
+    resolve(user);
+});
+
+getUser
+.then(function(user) {
+    console.log(`Got user ${user.name}`);
+    // Return a simple value
+    return user.email;
+})
+.then(function(email) {
+    console.log(`User email is ${email}`);
+});
+```
+
+Output is:
+
+```
+Got user John Doe
+User email is jdoe@email.com
+```
+
+3. Throw an error from .then() handler
+
+You can throw an error from the .then() handler. If you have a .catch() method down the chain, it will handle that error. If we don't handle the error, an unhandledrejection event takes place. It is always a good practice to handle errors with a .catch() handler, even when you least expect it to happen.
+
+In the example below, we check if the user has HR permission. If so, we throw an error. Next, the .catch() handler will handle this error.
+
+```
+let getUser = new Promise(function(resolve, reject) {
+    const user = { 
+        name: 'John Doe', 
+        email: 'jdoe@email.com', 
+        permissions: [ 'db', 'hr', 'dev']
+    };
+    resolve(user);
+});
+
+getUser
+.then(function(user) {
+    console.log(`Got user ${user.name}`);
+    // Let's reject if a dev is having the HR permission
+    if(user.permissions.includes('hr')){
+        throw new Error('You are not allowed to access the HR module.');
+    }
+    // else resolve as usual
+})
+.then(function(email) {
+    console.log(`User email is ${email}`);
+})
+.catch(function(error) {
+    console.error(error)
+});
+```
 
 
 
