@@ -529,7 +529,51 @@ caller(); // Output, 'Hi' in the console.
 ```
 As you see, we can use the await with a non-async function but, we can not use it within(or inside) a non-async function.
 
+The V8 engine(version >= 8.9) supports the top-level await in modules. It means you are allowed to use it outside of an async function. The Chrome DevTools, Node.js REPL support the top-level await for a while now. However, it is still not supported beyond the environments we just discussed.
 
+### How to Handle Error with Async/await
+
+We learned about error handling using the .catch() handler method in the promise chain article.
+With the async/await keywords, we can handle the error with traditional try...catch. When there is an error, the control goes to the catch block. 
+
+```
+const validateUser = ({userId, password}) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (userId && password) {
+                resolve(`${userId} you have been authenticated successfully!!!`);
+            } else {
+                reject({message: 'userId or Password could be blank!'});
+            }
+
+        }, 2000);
+    });
+}
+```
+```
+const app = async () => {
+    const data = {
+        userId: '',
+        password: ''
+    };
+
+    try {
+        console.log('Initializing...');
+        const result = await validateUser(data);
+        console.log(result);
+    } catch (e) {
+        console.error(e.message);
+    }
+}
+
+// invoke the function app
+app();
+```
+When we invoke the app() function, the validateUser(data) will throw an error implicitly. We handle it using the try...catch in the app() function. The control will go to the catch block. We will get the error log as,
+
+![image](https://user-images.githubusercontent.com/42742924/157018375-41603208-5e95-4c7e-a820-614c86255b4e.png)
+
+If we pass valid userId and password values, we will see the expected result log in the console.
 
 
 
